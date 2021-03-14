@@ -79,7 +79,42 @@ public class InnReservations {
   }
 
   private static void cancelReservation() {
-    System.out.println("Test");
+    System.out.print("\nPlease Enter Reservation Number: ");
+    try {
+      int code = in.nextInt();
+
+      try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
+
+        String sqlStatment = "SELECT CODE FROM lab7_reservations WHERE CODE = ?";
+
+        try (PreparedStatment psmt = conn.prepareStatement(sqlStatment, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+          pstmt.setInt(1, code);
+          ResultSet rs = pstmt.executeQuery();
+          
+          if (!rs.next()) {
+            System.out.println("Reservation: " + code + ", Could not be located\n");
+            return;
+          }
+
+          System.out.println("Reservation: " + code + " Found");
+          System.out.println("Confirm Cancelization (Y/N)?");
+          char confirm = in.nextChar();
+          if (confirm = 'Y' | confirm = 'y') {
+            rs.deleteRow();
+            System.out.println("Reservation: " + code + " Sucessfully Canceled\n");
+          } else {
+            System.out.println("Reservation: " + code + " Was Not Canceled\n");
+          }
+
+        } catch (SQLException e) {
+          System.out.println("Reservation: " + code + ", Could not be canceled\n");
+        }
+
+    } catch (InputMismatchException e) {
+      System.out.println("Reservation Numbers are numbers\n");
+    }
+
+
   }
 
   private static void summary() {
