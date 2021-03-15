@@ -79,6 +79,8 @@ public class InnReservations {
   }
 
   private static void cancelReservation() {
+    Scanner in = new Scanner(System.in);
+
     System.out.print("\nPlease Enter Reservation Number: ");
     try {
       int code = in.nextInt();
@@ -99,22 +101,21 @@ public class InnReservations {
           System.out.println("Reservation: " + code + " Found");
           System.out.println("Confirm Cancelization (Y/N)?");
           char confirm = in.nextChar();
-          if (confirm = 'Y' | confirm = 'y') {
+          if (confirm == 'Y' | confirm == 'y') {
             rs.deleteRow();
             System.out.println("Reservation: " + code + " Sucessfully Canceled\n");
           } else {
             System.out.println("Reservation: " + code + " Was Not Canceled\n");
           }
 
-        } catch (SQLException e) {
-          System.out.println("Reservation: " + code + ", Could not be canceled\n");
         }
+      } catch (SQLException e) {
+        System.out.println("Reservation: " + code + ", Could not be canceled\n");
+      }
 
     } catch (InputMismatchException e) {
       System.out.println("Reservation Numbers are numbers\n");
     }
-
-
   }
 
   private static void summary() {
