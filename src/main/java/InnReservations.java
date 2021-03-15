@@ -7,6 +7,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.h2.store.Data;
+
 public class InnReservations {
 
   private static final String JDBC_URL = "jdbc:h2:~/csc365_lab7";
@@ -79,7 +81,45 @@ public class InnReservations {
   }
 
   private static void cancelReservation() {
-    System.out.println("Test");
+    Scanner in = new Scanner(System.in);
+
+    System.out.print("\nPlease Enter Reservation Number: ");
+    try {
+      int code = in.nextInt();
+
+      try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
+
+        String sqlStatment = "SELECT CODE FROM lab7_reservations WHERE CODE = ?";
+
+        try (PreparedStatement psmt = conn.prepareStatement(sqlStatment, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+          psmt.setInt(1, code);
+          ResultSet rs = psmt.executeQuery();
+          
+          if (!rs.next()) {
+            System.out.println("Reservation: " + code + ", Could not be located\n");
+            return;
+          }
+
+          System.out.println("Reservation: " + code + " Found");
+          System.out.println("Confirm Cancelization (Yes/No)?");
+          String confirm = in.next();
+          if (confirm.toUpperCase().equals("YES")) {
+            rs.deleteRow();
+            System.out.println("Reservation: " + code + " Sucessfully Canceled\n");
+          } else {
+            System.out.println("Reservation: " + code + " Was Not Canceled\n");
+          }
+
+        }
+      } catch (SQLException e) {
+        System.out.println("Reservation: " + code + ", Could not be canceled\n");
+      }
+
+    } catch (InputMismatchException e) {
+      System.out.println("Reservation Numbers are numbers\n");
+    } finally {
+      in.close();
+    }
   }
 
   private static void summary() {
