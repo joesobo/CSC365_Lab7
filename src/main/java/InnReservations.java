@@ -7,6 +7,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.h2.store.Data;
+
 public class InnReservations {
 
   private static final String JDBC_URL = "jdbc:h2:~/csc365_lab7";
@@ -89,9 +91,9 @@ public class InnReservations {
 
         String sqlStatment = "SELECT CODE FROM lab7_reservations WHERE CODE = ?";
 
-        try (PreparedStatment psmt = conn.prepareStatement(sqlStatment, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
-          pstmt.setInt(1, code);
-          ResultSet rs = pstmt.executeQuery();
+        try (PreparedStatement psmt = conn.prepareStatement(sqlStatment, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {
+          psmt.setInt(1, code);
+          ResultSet rs = psmt.executeQuery();
           
           if (!rs.next()) {
             System.out.println("Reservation: " + code + ", Could not be located\n");
@@ -99,9 +101,9 @@ public class InnReservations {
           }
 
           System.out.println("Reservation: " + code + " Found");
-          System.out.println("Confirm Cancelization (Y/N)?");
-          char confirm = in.nextChar();
-          if (confirm == 'Y' | confirm == 'y') {
+          System.out.println("Confirm Cancelization (Yes/No)?");
+          String confirm = in.next();
+          if (confirm.toUpperCase() == "YES") {
             rs.deleteRow();
             System.out.println("Reservation: " + code + " Sucessfully Canceled\n");
           } else {
