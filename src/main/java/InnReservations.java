@@ -103,7 +103,7 @@ public class InnReservations {
           System.out.println("Reservation: " + code + " Found");
           System.out.println("Confirm Cancelization (Yes/No)?");
           String confirm = in.next();
-          if (confirm.toUpperCase() == "YES") {
+          if (confirm.toUpperCase().equals("YES")) {
             rs.deleteRow();
             System.out.println("Reservation: " + code + " Sucessfully Canceled\n");
           } else {
@@ -117,6 +117,8 @@ public class InnReservations {
 
     } catch (InputMismatchException e) {
       System.out.println("Reservation Numbers are numbers\n");
+    } finally {
+      in.close();
     }
   }
 
