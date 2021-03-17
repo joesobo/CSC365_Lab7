@@ -432,6 +432,7 @@ public class InnReservations {
 
     try {
       int code = in.nextInt();
+      in.nextLine();
 
       try (
         Connection conn = DriverManager.getConnection(
@@ -461,7 +462,7 @@ public class InnReservations {
 
           System.out.println("Reservation: " + code + " Found");
           System.out.println("Confirm Cancellation (Yes/No)?");
-          String confirm = in.next();
+          String confirm = in.nextLine();
           if (confirm.equalsIgnoreCase("YES")) {
             rs.deleteRow();
             System.out.println(
