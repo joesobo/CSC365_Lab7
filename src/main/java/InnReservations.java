@@ -184,25 +184,25 @@ public class InnReservations {
 
     System.out.println("Make a new Reservation");
 
-    System.out.print("First Name: ");
+    System.out.println("First Name: ");
     String firstName = in.nextLine().toUpperCase();
 
-    System.out.print("Last Name: ");
+    System.out.println("Last Name: ");
     String lastName = in.nextLine().toUpperCase();
 
-    System.out.print("Room Code of Desired Room: ");
+    System.out.println("Room Code of Desired Room: ");
     String roomCode = in.nextLine().toUpperCase();
 
-    System.out.print("Date of Check In(yyyy-mm-dd): ");
+    System.out.println("Date of Check In(yyyy-mm-dd): ");
     Date checkIn = Date.valueOf(in.nextLine());
 
-    System.out.print("Date of Check Out(yyyy-mm-dd): ");
+    System.out.println("Date of Check Out(yyyy-mm-dd): ");
     Date checkOut = Date.valueOf(in.nextLine());
 
-    System.out.print("Number of Children(17 or younger): ");
+    System.out.println("Number of Children(17 or younger): ");
     int children = in.nextInt();
 
-    System.out.print("Number of Adults(18+): ");
+    System.out.println("Number of Adults(18+): ");
     int adults = in.nextInt();
 
     System.out.println("Checking availability for "+roomCode+" between "+checkIn+" and "+checkOut+" for "+children+" children and "+adults+" adults");
