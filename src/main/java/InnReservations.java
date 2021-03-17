@@ -227,7 +227,7 @@ public class InnReservations {
 
         if (pStatement.executeUpdate() > 0) {
 
-          String sqlConfirmationString = "SELECT FirstName, LastName, RoomCode, RoomName, bedType, CheckIn, " +
+          String sqlConfirmationString = "SELECT CODE, FirstName, LastName, RoomCode, RoomName, bedType, CheckIn, " +
           "CheckOut, Adults, kids, Rate FROM lab7_reservations JOIN lab7_rooms on Room = RoomCode " +
           "WHERE CheckIn = ? and CheckOut = ? and Room = ?";
 
@@ -238,6 +238,7 @@ public class InnReservations {
             ResultSet resultSet = confirmiationPStatement.executeQuery();
 
             if (resultSet.next()) {
+              String confirmationCode = resultSet.getString("CODE");
               String confirmFirstName = resultSet.getString("FirstName");
               String confirmLastName = resultSet.getString("LastName");
               String confirmRoomCode = resultSet.getString("RoomCode");
@@ -256,7 +257,8 @@ public class InnReservations {
               long weekDays = totalDays - weekendDays;
               double totalCharge = rate * weekDays + (rate * 1.1) * weekendDays;
               
-              System.out.println("Confirmation\n\n" + confirmFirstName + " " + confirmLastName + "\n" +
+              System.out.println("Confirmation\n\nReservation Code :" + confirmationCode + "\n" +
+                confirmFirstName + " " + confirmLastName + "\n" +
                 confirmRoomName + " (" + confirmRoomCode + "), " + confirmBedType + " bed\n" +
                 confirmAdults + " Number of Adults, and " + confirmKids + " Children\n\n" +
                 "Total Cost for " + totalDays + " is: " + totalCharge + "$\n\n");
