@@ -183,6 +183,7 @@ public class InnReservations {
   private static void makeReservation(Scanner in) {
 
     System.out.println("Make a new Reservation");
+    in.nextLine();
 
     System.out.println("First Name: ");
     String firstName = in.nextLine().toUpperCase();
@@ -227,7 +228,7 @@ public class InnReservations {
         if (pStatement.executeUpdate() > 0) {
 
           String sqlConfirmationString = "SELECT FirstName, LastName, RoomCode, RoomName, bedType, CheckIn, " +
-          "CheckOut, Adults, kids, Rate FROM lab7_reservations JOIN lab_7rooms on Room = RoomCode " +
+          "CheckOut, Adults, kids, Rate FROM lab7_reservations JOIN lab7_rooms on Room = RoomCode " +
           "WHERE CheckIn = ? and CheckOut = ? and Room = ?";
 
           try (PreparedStatement confirmiationPStatement = conn.prepareStatement(sqlConfirmationString)) {
