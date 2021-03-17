@@ -51,7 +51,7 @@ public class InnReservations {
             makeReservation(in);
             break;
           case 3:
-            changeReservation();
+            changeReservation(in);
             break;
           case 4:
             cancelReservation(in);
@@ -271,8 +271,88 @@ public class InnReservations {
     }
   }
 
-  private static void changeReservation() {
-    System.out.println("Test");
+  private static void changeReservation(Scanner in) {
+    final String noChange = "NO CHANGE";
+    System.out.println("Change your Reservation\n");
+
+    System.out.println("Please Enter your Reservation Code:");
+    int reservationCode = in.nextInt();
+    in.nextLine();
+
+    System.out.println("\n***If you do not want to change a field please enter " + noChange + "***\n");
+    System.out.println("New First Name:");
+    String firstName = in.nextLine().toUpperCase();
+
+    System.out.println("New Last Name");
+    String lastName = in.nextLine().toUpperCase();
+
+    System.out.println("New Check In Date (yyyy-mm-dd):");
+    String checkInString = in.nextLine();
+
+    System.out.println("New Check Out Date (yyyy-mm-dd):");
+    String checkOutString = in.nextLine();
+
+    System.out.println("New Number of Children");
+    String childrenString = in.nextLine();
+
+    System.out.println("New Number of Adults");
+    String adultsString = in.nextLine();
+
+    List<Object> values = new ArrayList<>();
+    StringBuilder sqlQueryBuilder = new StringBuilder("UPDATE lab7_reservations SET ");
+    StringJoiner stringJoiner = new StringJoiner(", ");
+
+    if (!firstName.toUpperCase().equals(noChange)) {
+      stringJoiner.add("FirstName = ?");
+      values.add(firstName);
+    }
+    if (!lastName.toUpperCase().equals(noChange)) {
+      stringJoiner.add("LastName = ?");
+      values.add(lastName);
+    }
+    if (!checkInString.toUpperCase().equals(noChange)) {
+      stringJoiner.add("CheckIn = ?");
+      values.add(Date.valueOf(checkInString));
+    }
+    if (!checkOutString.toUpperCase().equals(noChange)) {
+      stringJoiner.add("CheckOut = ?");
+      values.add(Date.valueOf(checkOutString));
+    }
+    if (!childrenString.toUpperCase().equals(noChange)) {
+      stringJoiner.add("Kids = ?");
+      values.add(Integer.valueOf(childrenString));
+    }
+    if (!adultsString.toUpperCase().equals(noChange)) {
+      stringJoiner.add("Adults = ?");
+      values.add(Integer.valueOf(adultsString));
+    }
+
+    sqlQueryBuilder.append(stringJoiner.toString());
+    sqlQueryBuilder.append(" WHERE CODE = ?");
+
+    try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
+      
+      try (PreparedStatement pStatement = conn.prepareStatement(sqlQueryBuilder.toString())) {
+        for (int i = 0; i < values.size(); i++) {
+          Object currentObject = values.get(i);
+
+          if (currentObject instanceof Integer) {
+            pStatement.setInt(i + 1, (int)currentObject);
+          } else if (currentObject instanceof String) {
+            pStatement.setString(i + 1, (String)currentObject);
+          } else if (currentObject instanceof Date) {
+            pStatement.setDate(i + 1, (Date)currentObject);
+          }
+        }
+
+        pStatement.setInt(values.size() + 1, reservationCode);
+        long changeCount = pStatement.executeUpdate();
+        System.out.println("Changed: " + changeCount + " fields\n");
+
+      }
+    } catch (SQLException e) {
+      System.err.println("Couldn't Update Reservation " + reservationCode + ": " + e.getMessage().split(";")[0] + "\n");
+    }
   }
 
   private static void cancelReservation(Scanner in) {
