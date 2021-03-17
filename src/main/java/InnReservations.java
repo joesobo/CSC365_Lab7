@@ -277,6 +277,7 @@ public class InnReservations {
 
     System.out.println("Please Enter your Reservation Code:");
     int reservationCode = in.nextInt();
+    in.nextLine();
 
     System.out.println("\n***If you do not want to change a field please enter " + noChange + "***\n");
     System.out.println("New First Name:");
@@ -298,7 +299,7 @@ public class InnReservations {
     String adultsString = in.nextLine();
 
     List<Object> values = new ArrayList<>();
-    StringBuilder sqlQueryBuilder = new StringBuilder("UPDATE lab7_reservations SET");
+    StringBuilder sqlQueryBuilder = new StringBuilder("UPDATE lab7_reservations SET ");
     StringJoiner stringJoiner = new StringJoiner(", ");
 
     if (!firstName.toUpperCase().equals(noChange)) {
@@ -347,10 +348,10 @@ public class InnReservations {
         pStatement.setInt(values.size() + 1, reservationCode);
         long changeCount = pStatement.executeUpdate();
         System.out.println("Changed: " + changeCount + " fields\n");
-        
+
       }
     } catch (SQLException e) {
-      System.err.println("Couldn't Update Reservation " + reservationCode + ": " + e.getMessage().split(";")[0 ]);
+      System.err.println("Couldn't Update Reservation " + reservationCode + ": " + e.getMessage().split(";")[0] + "\n");
     }
   }
 
