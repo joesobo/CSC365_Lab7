@@ -221,8 +221,6 @@ public class InnReservations {
 
     } catch (InputMismatchException e) {
       System.out.println("Reservation Numbers are numbers\n");
-    } finally {
-      in.close();
     }
   }
 
