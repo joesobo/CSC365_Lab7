@@ -3,9 +3,13 @@ import java.sql.*;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-import org.h2.store.Data;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 public class InnReservations {
 
@@ -44,13 +48,13 @@ public class InnReservations {
             roomsAndRates();
             break;
           case 2:
-            makeReservation();
+            makeReservation(in);
             break;
           case 3:
             changeReservation();
             break;
           case 4:
-            cancelReservation();
+            cancelReservation(in);
             break;
           case 5:
             summary();
@@ -176,18 +180,101 @@ public class InnReservations {
     System.out.println();
   }
 
-  private static void makeReservation() {
-    System.out.println("Test");
+  private static void makeReservation(Scanner in) {
+
+    System.out.println("Make a new Reservation");
+
+    System.out.print("First Name: ");
+    String firstName = in.nextLine().toUpperCase();
+
+    System.out.print("Last Name: ");
+    String lastName = in.nextLine().toUpperCase();
+
+    System.out.print("Room Code of Desired Room: ");
+    String roomCode = in.nextLine().toUpperCase();
+
+    System.out.print("Date of Check In(yyyy-mm-dd): ");
+    Date checkIn = Date.valueOf(in.nextLine());
+
+    System.out.print("Date of Check Out(yyyy-mm-dd): ");
+    Date checkOut = Date.valueOf(in.nextLine());
+
+    System.out.print("Number of Children(17 or younger): ");
+    int children = in.nextInt();
+
+    System.out.print("Number of Adults(18+): ");
+    int adults = in.nextInt();
+
+    System.out.println("Checking availability for "+roomCode+" between "+checkIn+" and "+checkOut+" for "+children+" children and "+adults+" adults");
+
+    try (Connection conn = DriverManager.getConnection(JDBC_URL, JDBC_USER, JDBC_PASSWORD)) {
+
+      String sqlInsertString = "INSERT INTO lab7_reservations " + 
+      "(CODE, Room, CheckIn, CheckOut, Rate, LastName, FirstName, Adults, Kids) " +
+      "VALUES ((SELECT max(CODE) + 1 FROM lab7_reservations), ?, ?, ?, " +
+      "(SELECT basePrice FROM lab7_rooms where RoomCode = ?), ?, ?, ?, ?)";
+
+      try (PreparedStatement pStatement = conn.prepareStatement(sqlInsertString)) {
+        pStatement.setString(1, roomCode);
+        pStatement.setDate(2, checkIn);
+        pStatement.setDate(3, checkOut);
+        pStatement.setString(4, roomCode);
+        pStatement.setString(5, lastName);
+        pStatement.setString(6, firstName);
+        pStatement.setInt(7, adults);
+        pStatement.setInt(8, children);
+
+        if (pStatement.executeUpdate() > 0) {
+
+          String sqlConfirmationString = "SELECT FirstName, LastName, RoomCode, RoomName, bedType, CheckIn, " +
+          "CheckOut, Adults, kids, Rate FROM lab7_reservations JOIN lab_7rooms on Room = RoomCode " +
+          "WHERE CheckIn = ? and CheckOut = ? and Room = ?";
+
+          try (PreparedStatement confirmiationPStatement = conn.prepareStatement(sqlConfirmationString)) {
+            confirmiationPStatement.setDate(1, checkIn);
+            confirmiationPStatement.setDate(2, checkOut);
+            confirmiationPStatement.setString(3, roomCode);
+            ResultSet resultSet = confirmiationPStatement.executeQuery();
+
+            if (resultSet.next()) {
+              String confirmFirstName = resultSet.getString("FirstName");
+              String confirmLastName = resultSet.getString("LastName");
+              String confirmRoomCode = resultSet.getString("RoomCode");
+              String confirmRoomName = resultSet.getString("RoomName");
+              String confirmBedType = resultSet.getString("bedType");
+              LocalDate confirmCheckIn = resultSet.getDate("CheckIn").toLocalDate();
+              LocalDate confirmCheckOut = resultSet.getDate("CheckOut").toLocalDate();
+              int confirmAdults = resultSet.getInt("Adults");
+              int confirmKids = resultSet.getInt("Kids");
+              int rate = resultSet.getInt("Rate");
+              long totalDays = DAYS.between(confirmCheckIn, confirmCheckOut);
+              Predicate<LocalDate> isWeekend = date -> date.getDayOfWeek() == DayOfWeek.SATURDAY
+                || date.getDayOfWeek() == DayOfWeek.SUNDAY;
+              long weekendDays = Stream.iterate(confirmCheckIn, date -> date.plusDays(1)).limit(totalDays)
+                .filter(isWeekend).count();
+              long weekDays = totalDays - weekendDays;
+              double totalCharge = rate * weekDays + (rate * 1.1) * weekendDays;
+              
+              System.out.println("Confirmation\n\n" + confirmFirstName + " " + confirmLastName + "\n" +
+                confirmRoomName + " (" + confirmRoomCode + "), " + confirmBedType + " bed\n" +
+                confirmAdults + " Number of Adults, and " + confirmKids + " Children\n\n" +
+                "Total Cost for " + totalDays + " is: " + totalCharge + "$\n\n");
+            }
+          }
+        }
+      }
+    } catch (SQLException e) {
+      System.err.println("Could not create reservation: " + e.getMessage().split(";")[0] + "\n");
+    }
   }
 
   private static void changeReservation() {
     System.out.println("Test");
   }
 
-  private static void cancelReservation() {
-    Scanner in = new Scanner(System.in);
-
+  private static void cancelReservation(Scanner in) {
     System.out.print("\nPlease Enter Reservation Number: ");
+
     try {
       int code = in.nextInt();
 
