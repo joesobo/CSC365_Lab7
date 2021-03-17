@@ -462,7 +462,7 @@ public class InnReservations {
           System.out.println("Reservation: " + code + " Found");
           System.out.println("Confirm Cancellation (Yes/No)?");
           String confirm = in.next();
-          if (confirm.toUpperCase().equals("YES")) {
+          if (confirm.equalsIgnoreCase("YES")) {
             rs.deleteRow();
             System.out.println(
               "Reservation: " + code + " Successfully Canceled\n"
